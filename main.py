@@ -5,7 +5,8 @@ abi = '[{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":""
 
 
 async def main():
-    w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider('https://mainnet.infura.io/v3/xxxx'))
+    # 主网
+    w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider('https://mainnet.infura.io/v3/xx'))
 
     # 1. 检索某个区块中的合约授权的数据， 合约授权 调用的 方法为 approve.
     # approve 方法的 topic id，固定值
@@ -16,6 +17,16 @@ async def main():
         'toBlock': hex(19859650),
         'topics': [approve_topic],  # 可为[], 如果为空数组，则查询所有的topics
     }
+
+    # 如果已知区块hash，先获取区块信息拿到高度在通过高度查询
+    # block = await  w3.eth.get_block('0xea922d10173ad16cc5bb1e3c707bb009cd7d950d36d6d4403a21744b2ffaef15')
+    #
+    # filter_params = {
+    #     'fromBlock': hex(block['number']),
+    #     'toBlock': hex(block['number']),
+    #     'topics': [approve_topic],  # 可为[], 如果为空数组，则查询所有的topics
+    # }
+
     f = await w3.eth.filter(filter_params)
     # 获取 区块中的 logs
     logs = await w3.eth.get_filter_logs(f.filter_id)
@@ -31,9 +42,9 @@ async def main():
         block_number = log['blockNumber']
         log_index = log['logIndex']
 
-        print("contract", contract)  # 合约地址
+        print("contract", contract)  # 合约地址 (代币合约)
         print("owner", owner)  # 授权人
-        print("spender", spender)  # 被授权合约
+        print("spender", spender)  # 被授权合约 （第三方， uniswap...）
         print("amount 16", hex_amount)  # 授权数量16进制
         print("amount 十进制", int(hex_amount, 16))  # 授权数量10进制
         print("tx_hash", tx_hash)  # 此次授权的交易hash
